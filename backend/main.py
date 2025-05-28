@@ -46,7 +46,8 @@ def delete_reservation(id: int, response: Response):
 
 if __name__ == "__main__":
     
-    # No database integration for the moment, everything is in memory
+    # No database integration for the moment
+    # everything is in memory
     current_reservation_id = 1
     reservations = []
 
