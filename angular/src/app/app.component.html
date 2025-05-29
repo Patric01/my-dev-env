@@ -1,0 +1,8 @@
+<!-- Navbar vizibil doar dacă showNavbar e true -->
+<nav class="navbar" *ngIf="showNavbar">
+  <img src="assets/Endava_Logo.svg" alt="Logo" class="nav-logo" />
+  <button class="nav-btn" routerLink="/register">Register User</button>
+</nav>
+
+<!-- Pagini -->
+<router-outlet></router-outlet>

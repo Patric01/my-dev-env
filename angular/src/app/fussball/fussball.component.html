@@ -1,0 +1,42 @@
+<div class="booking-wrapper">
+  <h2 class="booking-title">Rezervări Fussball</h2>
+
+ <label for="duration" class="duration-label">Durată:</label>
+<select id="duration" [(ngModel)]="selectedDuration" class="duration-select">
+  <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>
+</select>
+
+  <div class="booking-card">
+    <table class="booking-table">
+      <thead>
+        <tr>
+          <th>Ora</th>
+          <th>Status</th>
+          <th>Acțiune</th>
+        </tr>
+      </thead>
+      <tbody>
+       <tr 
+  *ngFor="let slot of slots"
+  [style.background]="slot.blockColor"
+  [class.dimmed]="!slot.blockStart && slot.user"
+>
+  <td>{{ slot.time }}</td>
+  <td>
+    {{ slot.blockStart && slot.user ? slot.user : (slot.user ? '–––' : 'Liber') }}
+  </td>
+  <td>
+    <button
+      *ngIf="!slot.user"
+      class="btn-book"
+      (click)="reserve(slot.time)">
+      Rezervă
+    </button>
+    <span *ngIf="slot.blockStart && slot.user" class="ocupat">Ocupat</span>
+    <span *ngIf="!slot.blockStart && slot.user">–––</span>
+  </td>
+</tr>
+      </tbody>
+    </table>
+  </div>
+</div>

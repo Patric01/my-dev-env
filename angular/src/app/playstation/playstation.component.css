@@ -1,0 +1,106 @@
+:root {
+  --primary-color: #192B37;
+  --accent-color: #FF5640;
+  --bg-color: #f2f4f7;
+  --card-bg: #ffffff;
+  --text-color: #192B37;
+}
+
+body {
+  background-color: var(--bg-color);
+}
+
+.booking-wrapper {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.booking-title {
+  color: var(--primary-color);
+  margin-bottom: 60px; /* înainte era 24px */
+  font-size: 28px;
+}
+
+
+.booking-card {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 30px;
+}
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.booking-table th,
+.booking-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  color: var(--text-color);
+  font-size: 16px;
+}
+
+.booking-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.dimmed {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.btn-book {
+  background-color: #FF5640;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-book:hover {
+  background-color: #e24e3a;
+}
+
+.ocupat {
+  color: #888;
+  font-weight: bold;
+}
+
+.duration-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 16px;
+}
+
+.duration-select {
+  display: inline-block;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: var(--primary-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 20px;
+  appearance: none; /* remove native arrow on some browsers */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" fill="%23192B37" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+.duration-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 86, 64, 0.2);
+}
