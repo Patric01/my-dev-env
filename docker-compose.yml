@@ -1,43 +1,15 @@
-version: '3.8'
-
 services:
-  mongodb:
-    image: mongo:7
+  db:
+    image: postgres:latest
+    container_name: postgres_db
     ports:
-      - "27017:27017"
+      - "5432:5432"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changethis
+      POSTGRES_DB: app
     volumes:
-      - mongo_data:/data/db
-      - ./init-mongo:/docker-entrypoint-initdb.d
-    networks:
-      - devnet
-
-  backend:
-    build: ./backend
-    ports:
-      - "${BACKEND_PORT}:5001"
-    volumes:
-      - ./backend:/app
-    depends_on:
-      - mongodb
-    networks:
-      - devnet
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "${FRONTEND_PORT}:3001"
-    volumes:
-      - ./frontend:/app
-    depends_on:
-      - backend
-    networks:
-      - devnet
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mongo_data:
-
-networks:
-  devnet:
+  postgres_data:
