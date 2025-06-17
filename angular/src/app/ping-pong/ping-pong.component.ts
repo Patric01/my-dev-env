@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../service/auth.service';
 
 interface Slot {
   time: string;
   user: string | null;
-  blockStart?: boolean; // slot-ul de început
-  blockColor?: string;  // culoare pentru grup
+  blockStart?: boolean;
+  blockColor?: string;
+  guests?: string[];
 }
-
 
 @Component({
   selector: 'app-ping-pong',
@@ -18,15 +19,25 @@ export class PingPongComponent implements OnInit {
   slots: Slot[] = [];
   durations = [15, 30, 45, 60];
   selectedDuration = 30;
+  currentUser: string | null = null;
+
+  openLobbySlot: Slot | null = null;
+  guestName = '';
+  maxGuests = 3;
+
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
     this.generateSlots();
     this.loadBookings();
+
   }
-getRandomColor(): string {
-  const colors = ['#FFE0E6', '#E0F7FF', '#E8FFE0', '#FFF4E0'];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
+
+  getRandomColor(): string {
+    const colors = ['#FFE0E6', '#E0F7FF', '#E8FFE0', '#FFF4E0'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
 
   generateSlots(): void {
     const startHour = 10;
@@ -49,8 +60,10 @@ getRandomColor(): string {
   }
 
   reserve(startTime: string): void {
-  const name = prompt('Numele tău:');
-  if (!name) return;
+   if (!this.currentUser) {
+      alert('Trebuie să fii autentificat!');
+      return;
+    }
 
   const startIndex = this.slots.findIndex(slot => slot.time === startTime);
   if (startIndex === -1) return;
@@ -58,7 +71,6 @@ getRandomColor(): string {
   const slotsToReserve = this.selectedDuration / 15;
   const blockColor = this.getRandomColor();
 
-  // verificare dacă toate sunt libere
   for (let i = 0; i < slotsToReserve; i++) {
     const slot = this.slots[startIndex + i];
     if (!slot || slot.user) {
@@ -67,16 +79,42 @@ getRandomColor(): string {
     }
   }
 
-  // rezervare efectivă
   for (let i = 0; i < slotsToReserve; i++) {
     const slot = this.slots[startIndex + i];
-    slot.user = name.trim();
+    slot.user = this.currentUser;
     slot.blockStart = i === 0;
     slot.blockColor = blockColor;
+    if (i === 0) slot.guests = [];
   }
 
   this.saveBookings();
 }
+
+
+  openLobby(time: string): void {
+    const slot = this.slots.find(s => s.time === time);
+    if (slot && slot.user === this.currentUser) {
+      if (!slot.guests) slot.guests = [];
+      this.openLobbySlot = slot;
+    }
+  }
+
+  closeLobby(): void {
+    this.openLobbySlot = null;
+    this.guestName = '';
+  }
+
+  addGuest(): void {
+    if (
+      this.openLobbySlot &&
+      this.guestName.trim() &&
+      (this.openLobbySlot.guests?.length || 0) < this.maxGuests
+    ) {
+      this.openLobbySlot.guests!.push(this.guestName.trim());
+      this.guestName = '';
+      this.saveBookings();
+    }
+  }
 
 
   saveBookings(): void {
@@ -86,11 +124,12 @@ getRandomColor(): string {
   loadBookings(): void {
     const data = localStorage.getItem('pingpong-bookings');
     if (data) {
-      const saved = JSON.parse(data);
-      this.slots = this.slots.map(slot => {
-        const match = saved.find((s: Slot) => s.time === slot.time);
-        return match ? match : slot;
-      });
+      const saved: Slot[] = JSON.parse(data);
+      this.slots = saved;
     }
+  }
+   logout(): void {
+    this.authService.logout();
+    this.currentUser = null;
   }
 }
