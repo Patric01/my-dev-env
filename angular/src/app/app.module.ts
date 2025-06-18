@@ -15,6 +15,7 @@ import { HomeComponent } from './home/home.component';
 import { PingPongComponent } from './ping-pong/ping-pong.component';
 import { PlaystationComponent } from './playstation/playstation.component';
 import { FussballComponent } from './fussball/fussball.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [

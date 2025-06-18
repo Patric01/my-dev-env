@@ -1,12 +1,12 @@
-
 <div class="booking-wrapper">
   <h2 class="booking-title">Rezervări PlayStation</h2>
 
-<label for="duration" class="duration-label">Durată:</label>
-<select id="duration" [(ngModel)]="selectedDuration" class="duration-select">
-  <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>
-</select>
+  <button class="btn-logout" (click)="logout()">🔄 Schimbă utilizator</button><br>
 
+  <label for="duration" class="duration-label">Durată:</label>
+  <select id="duration" [(ngModel)]="selectedDuration" class="duration-select">
+    <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>
+  </select>
 
   <div class="booking-card">
     <table class="booking-table">
@@ -18,27 +18,65 @@
         </tr>
       </thead>
       <tbody>
-       <tr 
-  *ngFor="let slot of slots"
-  [style.background]="slot.blockColor"
-  [class.dimmed]="!slot.blockStart && slot.user"
->
-  <td>{{ slot.time }}</td>
-  <td>
-    {{ slot.blockStart && slot.user ? slot.user : (slot.user ? '–––' : 'Liber') }}
-  </td>
-  <td>
-    <button
-      *ngIf="!slot.user"
-      class="btn-book"
-      (click)="reserve(slot.time)">
-      Rezervă
-    </button>
-    <span *ngIf="slot.blockStart && slot.user" class="ocupat">Ocupat</span>
-    <span *ngIf="!slot.blockStart && slot.user">–––</span>
-  </td>
-</tr>
+        <tr 
+          *ngFor="let slot of slots"
+          [style.background]="slot.blockColor"
+          [class.dimmed]="!slot.blockStart && slot.user"
+        >
+          <td>{{ slot.time }}</td>
+          <td>
+            <span *ngIf="slot.blockStart && slot.user">
+              {{ slot.user }}
+              <button 
+                *ngIf="slot.user === currentUser"
+                (click)="openLobby(slot.time)"
+                class="btn-lobby"
+              >Lobby</button>
+            </span>
+            <span *ngIf="!slot.blockStart && slot.user">–––</span>
+            <span *ngIf="!slot.user">Liber</span>
+          </td>
+          <td>
+            <button
+              *ngIf="!slot.user"
+              class="btn-book"
+              (click)="reserve(slot.time)">
+              Rezervă
+            </button>
+            <span *ngIf="slot.blockStart && slot.user" class="ocupat">Ocupat</span>
+            <span *ngIf="!slot.blockStart && slot.user">–––</span>
+          </td>
+        </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- LOBBY MODAL -->
+<div class="lobby-modal" *ngIf="openLobbySlot">
+  <div class="lobby-content">
+    <h2 class="lobby-title">🎮 Lobby - {{ openLobbySlot.time }}</h2>
+    <p class="lobby-subtitle">Rezervat de: <strong>{{ openLobbySlot.user }}</strong></p>
+
+    <div class="guest-list">
+      <p *ngIf="(openLobbySlot.guests?.length || 0) === 0">Niciun invitat adăugat.</p>
+      <ul>
+        <li *ngFor="let guest of openLobbySlot.guests">👤 {{ guest }}</li>
+      </ul>
+    </div>
+
+    <div class="guest-form">
+      <input [(ngModel)]="guestName" placeholder="Nume invitat" />
+      <button 
+        (click)="addGuest()" 
+        [disabled]="(openLobbySlot.guests?.length || 0) >= maxGuests">
+        Adaugă
+      </button>
+      <p *ngIf="(openLobbySlot.guests?.length || 0) >= maxGuests" class="max-msg">
+        Limită de {{ maxGuests }} invitați atinsă.
+      </p>
+    </div>
+
+    <button class="close-btn" (click)="closeLobby()">✖ Închide</button>
   </div>
 </div>
