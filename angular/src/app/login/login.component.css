@@ -89,3 +89,14 @@ select {
   background-color: #FF5640;
   color: #192B37;
 }
+.error-alert {
+  background-color: #fcebea;
+  color: #cc1f1a;
+  border: 1px solid #f5c6cb;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: bold;
+}

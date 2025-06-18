@@ -17,6 +17,8 @@ import { PlaystationComponent } from './playstation/playstation.component';
 import { FussballComponent } from './fussball/fussball.component';
 import { CommonModule } from '@angular/common';
 
+import { HttpClientModule } from '@angular/common/http';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,7 +37,7 @@ import { CommonModule } from '@angular/common';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    HttpClientModule      // 🔹 pentru http.post()
   ],
   providers: [
     provideClientHydration(withEventReplay())

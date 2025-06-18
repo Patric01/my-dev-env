@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../service/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -9,15 +10,31 @@ import { AuthService } from '../service/auth.service';
   styleUrl: 'login.component.css'
 })
 export class LoginComponent {
-  constructor(private router: Router, private authService: AuthService) {}
+  
+  email: string = '';
+  errorMessage: string = '';
+
+  constructor(private router: Router, private authService: AuthService,private http: HttpClient) {}
 
   onLogin() {
-    const emailInput = (document.getElementById('email') as HTMLInputElement).value;
-    const passwordInput = (document.getElementById('password') as HTMLInputElement).value;
+    const payload = { email: this.email };
+    this.errorMessage = ''; // resetăm mesajul anterior
 
-    if (emailInput && passwordInput) {
-      this.authService.login(emailInput);
-      this.router.navigate(['/home']);
-    }
+    this.http.post<any>('http://localhost:8000/login', payload)
+      .subscribe({
+        next: (response) => {
+          console.log('Token JWT:', response.access_token);
+          localStorage.setItem('token', response.access_token);
+          // TODO: redirect către /home sau altă pagină
+          this.router.navigate(['/home']); // 🔹 REDIRECT aici
+        },
+        error: (err) => {
+          if (err.status === 400 || err.status === 401) {
+            this.errorMessage = err.error.detail || 'Email invalid sau utilizator inexistent.';
+          } else {
+            this.errorMessage = 'Eroare de server. Încearcă mai târziu.';
+          }
+        }
+      });
   }
 }
