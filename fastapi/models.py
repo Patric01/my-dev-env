@@ -46,5 +46,7 @@ class ReservationRequest(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: str  # email
+    email: str
+    name: str
+    role: str
     exp: int  # epoch seconds

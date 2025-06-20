@@ -49,7 +49,7 @@ def get_current_user(
     token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
 ) -> User:
     payload = verify_token(token)
-    user_dict = get_user_by_email(session, payload.sub)
+    user_dict = get_user_by_email(session, payload.email)
     if user_dict is None:
         raise HTTPException(status_code=400, detail="User not found")
 

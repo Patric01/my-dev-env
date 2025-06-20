@@ -8,16 +8,15 @@ import { LoginComponent } from './login/login.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 
 import { FormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { PingPongComponent } from './ping-pong/ping-pong.component';
 import { PlaystationComponent } from './playstation/playstation.component';
 import { FussballComponent } from './fussball/fussball.component';
-import { CommonModule } from '@angular/common';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { JwtInterceptor } from './auth/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -33,14 +32,15 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     FormsModule,
     BrowserAnimationsModule,
-   // Material modules
+    // Material modules
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     HttpClientModule      // 🔹 pentru http.post()
   ],
   providers: [
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

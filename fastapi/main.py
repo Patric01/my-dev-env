@@ -41,7 +41,9 @@ async def email_login(request: Request, session: Session = Depends(get_session))
         )
 
     # 3. Creează token JWT
-    token = create_access_token(data={"sub": email})
+    token = create_access_token(
+        data={"email": email, "name": user.name, "role": user.role}
+    )
 
     return {"access_token": token, "token_type": "bearer"}
 

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../auth/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 interface Slot {
   time: string;
@@ -19,19 +20,29 @@ export class PingPongComponent implements OnInit {
   slots: Slot[] = [];
   durations = [15, 30, 45, 60];
   selectedDuration = 30;
-  currentUser: string | null = null;
+  currentUserName: string | null = null;
 
   openLobbySlot: Slot | null = null;
   guestName = '';
   maxGuests = 3;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
+    this.currentUserName = this.authService.getCurrentUser()['name'];
     this.generateSlots();
     this.loadBookings();
 
+
+    // use this data instead of the hardcoded values
+    // you'll also probably want to make a new method called `getReservations` or similar
+    // and call it wherever instead of repeating the same code
+    this.http.get('http://localhost:8000/reservations?type=ping-pong')
+      .subscribe({
+        next: data => {
+          console.log(data)
+        }
+      })
   }
 
   getRandomColor(): string {
@@ -60,40 +71,40 @@ export class PingPongComponent implements OnInit {
   }
 
   reserve(startTime: string): void {
-   if (!this.currentUser) {
+    if (!this.currentUserName) {
       alert('Trebuie să fii autentificat!');
       return;
     }
 
-  const startIndex = this.slots.findIndex(slot => slot.time === startTime);
-  if (startIndex === -1) return;
+    const startIndex = this.slots.findIndex(slot => slot.time === startTime);
+    if (startIndex === -1) return;
 
-  const slotsToReserve = this.selectedDuration / 15;
-  const blockColor = this.getRandomColor();
+    const slotsToReserve = this.selectedDuration / 15;
+    const blockColor = this.getRandomColor();
 
-  for (let i = 0; i < slotsToReserve; i++) {
-    const slot = this.slots[startIndex + i];
-    if (!slot || slot.user) {
-      alert('Interval indisponibil.');
-      return;
+    for (let i = 0; i < slotsToReserve; i++) {
+      const slot = this.slots[startIndex + i];
+      if (!slot || slot.user) {
+        alert('Interval indisponibil.');
+        return;
+      }
     }
-  }
 
-  for (let i = 0; i < slotsToReserve; i++) {
-    const slot = this.slots[startIndex + i];
-    slot.user = this.currentUser;
-    slot.blockStart = i === 0;
-    slot.blockColor = blockColor;
-    if (i === 0) slot.guests = [];
-  }
+    for (let i = 0; i < slotsToReserve; i++) {
+      const slot = this.slots[startIndex + i];
+      slot.user = this.currentUserName;
+      slot.blockStart = i === 0;
+      slot.blockColor = blockColor;
+      if (i === 0) slot.guests = [];
+    }
 
-  this.saveBookings();
-}
+    this.saveBookings();
+  }
 
 
   openLobby(time: string): void {
     const slot = this.slots.find(s => s.time === time);
-    if (slot && slot.user === this.currentUser) {
+    if (slot && slot.user === this.currentUserName) {
       if (!slot.guests) slot.guests = [];
       this.openLobbySlot = slot;
     }
@@ -128,8 +139,8 @@ export class PingPongComponent implements OnInit {
       this.slots = saved;
     }
   }
-   logout(): void {
+  logout(): void {
     this.authService.logout();
-    this.currentUser = null;
+    this.currentUserName = null;
   }
 }

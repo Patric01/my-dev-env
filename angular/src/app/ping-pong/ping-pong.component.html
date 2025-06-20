@@ -22,7 +22,7 @@
           <td>
             <span *ngIf="slot.blockStart && slot.user">
               {{ slot.user }}
-              <button *ngIf="slot.user === currentUser" (click)="openLobby(slot.time)" class="btn-lobby">
+              <button *ngIf="slot.user === currentUserName" (click)="openLobby(slot.time)" class="btn-lobby">
                 Lobby</button>
 
             </span>
