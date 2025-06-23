@@ -9,7 +9,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem("token");
-    // Navigate to login page if necessary
+    window.location.href = "/";
   }
 
   getCurrentUser(): any {
