@@ -10,17 +10,17 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: 'login.component.css'
 })
 export class LoginComponent {
-  
+
   email: string = '';
   errorMessage: string = '';
 
-  constructor(private router: Router, private authService: AuthService,private http: HttpClient) {}
+  constructor(private router: Router, private authService: AuthService, private http: HttpClient) { }
 
   onLogin() {
     const payload = { email: this.email };
     this.errorMessage = ''; // resetăm mesajul anterior
 
-    this.http.post<any>('http://localhost:8000/login', payload)
+    this.http.post<any>('https://localhost:8000/login', payload)
       .subscribe({
         next: (response) => {
           console.log('Token JWT:', response.access_token);

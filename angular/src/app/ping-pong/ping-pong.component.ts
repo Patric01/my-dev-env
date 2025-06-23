@@ -37,7 +37,7 @@ export class PingPongComponent implements OnInit {
     // use this data instead of the hardcoded values
     // you'll also probably want to make a new method called `getReservations` or similar
     // and call it wherever instead of repeating the same code
-    this.http.get('http://localhost:8000/reservations?type=ping-pong')
+    this.http.get('https://localhost:8000/reservations?type=ping-pong')
       .subscribe({
         next: data => {
           console.log(data)
