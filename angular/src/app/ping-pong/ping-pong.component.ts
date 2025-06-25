@@ -45,6 +45,7 @@ export class PingPongComponent implements OnInit {
       })
   }
 
+  
   getRandomColor(): string {
     const colors = ['#FFE0E6', '#E0F7FF', '#E8FFE0', '#FFF4E0'];
     return colors[Math.floor(Math.random() * colors.length)];
