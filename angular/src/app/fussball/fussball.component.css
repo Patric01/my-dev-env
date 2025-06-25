@@ -1,105 +1,156 @@
-:root {
-  --primary-color: #192B37;
-  --accent-color: #FF5640;
-  --bg-color: #f2f4f7;
-  --card-bg: #ffffff;
-  --text-color: #192B37;
-}
-
-body {
-  background-color: var(--bg-color);
-}
-
 .booking-wrapper {
-  max-width: 800px;
+  max-width: 600px;
   margin: 60px auto;
-  padding: 0 20px;
-  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .booking-title {
-  color: var(--primary-color);
-  margin-bottom: 60px; /* înainte era 24px */
-  font-size: 28px;
-}
-
-
-.booking-card {
-  background-color: var(--card-bg);
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  padding: 30px;
-}
-
-.booking-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.booking-table th,
-.booking-table td {
-  padding: 14px;
-  border-bottom: 1px solid #eee;
   text-align: center;
-  color: var(--text-color);
-  font-size: 16px;
+  color: #192B37;
+  font-size: 28px;
+  margin-bottom: 32px;
 }
 
-.booking-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+.booking-card.grid-view {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  max-height: 440px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
-.dimmed {
-  opacity: 0.6;
+
+.time-slot-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 8px 14px;
+  color: #666;
+}
+
+.time-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #FF5640;
+  transition: background 0.2s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.time-slot:hover:not(.reserved) {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.time-slot.selected {
+  background-color: rgba(255, 86, 64, 0.2);
+  border-color: #ff5640;
+}
+
+.time-slot.reserved {
+  background-color: #f1f1f1;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.slot-time {
+  font-weight: 500;
+}
+
+.slot-status {
+  font-size: 13px;
+  color: #555;
   font-style: italic;
 }
 
-.btn-book {
-  background-color: #FF5640;
-  color: white;
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  text-align: center;
+}
+
+.modal-box h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #192B37;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-confirm,
+.btn-cancel {
+  padding: 8px 16px;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
   font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-book:hover {
-  background-color: #e24e3a;
-}
-
-.ocupat {
-  color: #888;
-  font-weight: bold;
-}
-.duration-label {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: var(--primary-color);
-  font-size: 16px;
-}
-
-.duration-select {
-  display: inline-block;
-  padding: 10px 14px;
-  font-size: 16px;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: var(--primary-color);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 20px;
-  appearance: none; /* remove native arrow on some browsers */
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" fill="%23192B37" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 36px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.duration-select:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(255, 86, 64, 0.2);
+.btn-confirm {
+  background-color: #ff5640;
+  color: white;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: #333;
+}
+
+.toast-success {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  font-weight: bold;
+  font-size: 15px;
+  z-index: 9999;
+  animation: fadeSlideIn 0.4s ease, fadeSlideOut 0.4s ease 2.6s forwards;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideOut {
+  to {
+    opacity: 0;
+    transform: translateY(40px);
+  }
 }

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
 
 interface Slot {
   time: string;
@@ -6,32 +8,36 @@ interface Slot {
   blockStart?: boolean;
   blockColor?: string;
   guests?: string[];
+  selected?: boolean;
 }
 
 @Component({
   selector: 'app-playstation',
   standalone: false,
   templateUrl: './playstation.component.html',
-  styleUrl: './playstation.component.css'
+  styleUrls: ['./playstation.component.css']
 })
 export class PlaystationComponent implements OnInit {
   slots: Slot[] = [];
-  durations = [15, 30, 45, 60];
-  selectedDuration = 30;
-  currentUser: string | null = null;
+  currentUserName: string | null = null;
+  availableUsers: string[] = [];
+  guestName: string = '';
+  showToast = false;
+  selectedSlots: Slot[] = [];
+  isSelecting = false;
+  modalVisible = false;
+  selectedStart = '';
+  selectedEnd = '';
   openLobbySlot: Slot | null = null;
-  guestName = '';
   maxGuests = 1;
 
-  ngOnInit(): void {
-    this.generateSlots();
-    this.loadBookings();
-    this.currentUser = localStorage.getItem('playstation-user');
-  }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
-  getRandomColor(): string {
-    const colors = ['#FFE0E6', '#E0F7FF', '#E8FFE0', '#FFF4E0'];
-    return colors[Math.floor(Math.random() * colors.length)];
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    this.currentUserName = user?.name || null;
+    this.generateSlots();
+    this.getReservationsFromDB();
   }
 
   generateSlots(): void {
@@ -54,79 +60,106 @@ export class PlaystationComponent implements OnInit {
     return n < 10 ? '0' + n : n.toString();
   }
 
-  reserve(startTime: string): void {
-    let name = this.currentUser;
-    if (!name) {
-      name = prompt('Numele tău:');
-      if (!name) return;
-      this.currentUser = name.trim();
-      localStorage.setItem('playstation-user', this.currentUser);
+  getReservationsFromDB(): void {
+    this.http.get<any[]>('https://localhost:8000/reservations?type=playstation').subscribe({
+      next: (data) => {
+        data.forEach(res => {
+          const startIndex = this.slots.findIndex(s => s.time === res.start_time.slice(11, 16));
+          const endIndex = this.slots.findIndex(s => s.time === res.end_time.slice(11, 16));
+          const blockColor = this.getRandomColor();
+
+          for (let i = startIndex; i < endIndex; i++) {
+            if (this.slots[i]) {
+              this.slots[i].user = res.user_name;
+              this.slots[i].blockStart = i === startIndex;
+              this.slots[i].blockColor = blockColor;
+            }
+          }
+        });
+      },
+      error: (err) => console.error('Eroare la preluarea rezervărilor:', err)
+    });
+  }
+
+
+  getRandomColor(): string {
+    const colors = ['#FFE0E6', '#E0F7FF', '#E8FFE0', '#FFF4E0'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  startSelecting(slot: Slot): void {
+    if (slot.user) return;
+    this.isSelecting = true;
+    this.clearSelection();
+    slot.selected = true;
+    this.selectedSlots = [slot];
+  }
+
+  hoverSelecting(slot: Slot): void {
+    if (!this.isSelecting || slot.user) return;
+    if (!this.selectedSlots.includes(slot)) {
+      slot.selected = true;
+      this.selectedSlots.push(slot);
     }
+  }
 
-    const startIndex = this.slots.findIndex(slot => slot.time === startTime);
-    if (startIndex === -1) return;
+  endSelecting(): void {
+    if (this.selectedSlots.length) {
+      this.selectedStart = this.selectedSlots[0].time;
+      this.selectedEnd = this.selectedSlots[this.selectedSlots.length - 1].time;
+      this.modalVisible = true;
+    }
+    this.isSelecting = false;
+  }
 
-    const slotsToReserve = this.selectedDuration / 15;
+  confirmReservation(): void {
+    const name = this.currentUserName;
     const blockColor = this.getRandomColor();
+    const today = new Date().toISOString().split('T')[0];
+    const startTime = `${today}T${this.selectedStart}:00`;
+    const endTime = `${today}T${this.selectedEnd}:00`;
 
-    for (let i = 0; i < slotsToReserve; i++) {
-      const slot = this.slots[startIndex + i];
-      if (!slot || slot.user) {
-        alert('Interval indisponibil.');
-        return;
+    const payload = {
+      type: 'playstation',
+      start_time: startTime,
+      end_time: endTime
+    };
+
+    this.http.post('https://localhost:8000/reservations', payload).subscribe({
+      next: () => {
+        this.selectedSlots.forEach((slot, index) => {
+          slot.user = name;
+          slot.blockStart = index === 0;
+          slot.blockColor = blockColor;
+          slot.selected = false;
+          if (index === 0) slot.guests = [];
+        });
+        this.modalVisible = false;
+        this.selectedSlots = [];
+        this.showToast = true;
+        setTimeout(() => this.showToast = false, 3000);
+      },
+      error: (err) => {
+        console.error('Eroare la salvare rezervare:', err);
+        alert('A apărut o eroare la salvarea rezervării.');
       }
-    }
-
-    for (let i = 0; i < slotsToReserve; i++) {
-      const slot = this.slots[startIndex + i];
-      slot.user = this.currentUser;
-      slot.blockStart = i === 0;
-      slot.blockColor = blockColor;
-      if (i === 0) slot.guests = [];
-    }
-
-    this.saveBookings();
+    });
   }
 
-  openLobby(time: string): void {
-    const slot = this.slots.find(s => s.time === time);
-    if (slot && slot.user === this.currentUser) {
-      if (!slot.guests) slot.guests = [];
-      this.openLobbySlot = slot;
-    }
+
+  clearSelection(): void {
+    this.slots.forEach((slot) => (slot.selected = false));
+    this.selectedSlots = [];
   }
 
-  closeLobby(): void {
-    this.openLobbySlot = null;
-    this.guestName = '';
-  }
-
-  addGuest(): void {
-    if (
-      this.openLobbySlot &&
-      this.guestName.trim() &&
-      (this.openLobbySlot.guests?.length || 0) < this.maxGuests
-    ) {
-      this.openLobbySlot.guests!.push(this.guestName.trim());
-      this.guestName = '';
-      this.saveBookings();
-    }
-  }
-
-  saveBookings(): void {
-    localStorage.setItem('playstation-bookings', JSON.stringify(this.slots));
-  }
-
-  loadBookings(): void {
-    const data = localStorage.getItem('playstation-bookings');
-    if (data) {
-      const saved: Slot[] = JSON.parse(data);
-      this.slots = saved;
-    }
+  cancelSelection(): void {
+    this.selectedSlots.forEach((slot) => (slot.selected = false));
+    this.modalVisible = false;
+    this.selectedSlots = [];
   }
 
   logout(): void {
-    localStorage.removeItem('playstation-user');
-    this.currentUser = null;
+    this.authService.logout();
+    this.currentUserName = null;
   }
 }

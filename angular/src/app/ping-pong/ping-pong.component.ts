@@ -21,7 +21,7 @@ export class PingPongComponent implements OnInit {
   slots: Slot[] = [];
   currentUserName: string | null = null;
   availableUsers: string[] = []; // nume utilizatori
-
+  showToast = false;
   selectedSlots: Slot[] = [];
   isSelecting = false;
   modalVisible = false;
@@ -35,7 +35,7 @@ export class PingPongComponent implements OnInit {
     this.currentUserName = user?.name || null;
     this.generateSlots();
     this.getReservationsFromDB();
-    
+
   }
 
   generateSlots(): void {
@@ -144,6 +144,8 @@ export class PingPongComponent implements OnInit {
 
           this.modalVisible = false;
           this.selectedSlots = [];
+          this.showToast = true;
+          setTimeout(() => this.showToast = false, 3000);
         },
         error: (err) => {
           console.error('Eroare la salvare rezervare:', err);

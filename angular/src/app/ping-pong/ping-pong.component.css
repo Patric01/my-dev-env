@@ -15,21 +15,13 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: #192B37;
+  background: #ffffff;
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  max-height: 440px;       /* 🔹 înălțime fixă */
-  overflow-y: auto;        /* 🔹 scroll intern */
+  max-height: 440px;
+  overflow-y: auto;
   scrollbar-width: thin;
-}
-
-.booking-card.grid-view::-webkit-scrollbar {
-  width: 6px;
-}
-.booking-card.grid-view::-webkit-scrollbar-thumb {
-  background-color: rgba(25, 43, 55, 0.3);
-  border-radius: 4px;
 }
 
 .time-slot-header {
@@ -78,7 +70,6 @@
   font-style: italic;
 }
 
-/* MODAL */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -131,3 +122,35 @@
   color: #333;
 }
 
+.toast-success {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  font-weight: bold;
+  font-size: 15px;
+  z-index: 9999;
+  animation: fadeSlideIn 0.4s ease, fadeSlideOut 0.4s ease 2.6s forwards;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideOut {
+  to {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
