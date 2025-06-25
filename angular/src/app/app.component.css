@@ -11,7 +11,7 @@
   height: 40px;
 }
 
-.nav-btn {
+.logout-btn {
   background-color: #FF5640;
   border: none;
   color: white;
@@ -22,6 +22,6 @@
   transition: background-color 0.3s ease;
 }
 
-.nav-btn:hover {
+.logout-btn:hover {
   background-color: #e24e3a;
 }

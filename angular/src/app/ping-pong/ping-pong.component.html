@@ -1,72 +1,42 @@
 <div class="booking-wrapper">
   <h2 class="booking-title">Rezervări Ping-Pong</h2>
-<button class="btn-logout" (click)="logout()">🔄 Schimbă utilizator</button><br>
-  <label for="duration" class="duration-label">Durată:</label>
-  <select id="duration" [(ngModel)]="selectedDuration" class="duration-select">
-    <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>
-  </select>
 
-  <div class="booking-card">
-    <table class="booking-table">
-      <thead>
-        <tr>
-          <th>Ora</th>
-          <th>Status</th>
-          <th>Acțiune</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let slot of slots" [style.background]="slot.blockColor"
-          [class.dimmed]="!slot.blockStart && slot.user">
-          <td>{{ slot.time }}</td>
-          <td>
-            <span *ngIf="slot.blockStart && slot.user">
-              {{ slot.user }}
-              <button *ngIf="slot.user === currentUserName" (click)="openLobby(slot.time)" class="btn-lobby">
-                Lobby</button>
+  <div class="booking-card grid-view">
+    <div class="time-slot-header">
+      <span>Ora</span>
+      <span>Status</span>
+    </div>
 
-            </span>
-            <span *ngIf="!slot.blockStart && slot.user">–––</span>
-            <span *ngIf="!slot.user">Liber</span>
-          </td>
-          <td>
-            <button *ngIf="!slot.user" class="btn-book" (click)="reserve(slot.time)">
-              Rezervă
-            </button>
-            <span *ngIf="slot.blockStart && slot.user" class="ocupat">Ocupat</span>
-            <span *ngIf="!slot.blockStart && slot.user">–––</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div
+      *ngFor="let slot of slots"
+      class="time-slot"
+      [ngClass]="{ selected: slot.selected, reserved: slot.user }"
+      (mousedown)="startSelecting(slot)"
+      (mouseenter)="hoverSelecting(slot)"
+      (mouseup)="endSelecting()"
+    >
+      <div class="slot-time">{{ slot.time }}</div>
+      <div class="slot-status">
+        <span *ngIf="slot.user; else liber">
+          {{ slot.user === currentUserName ? 'Tu' : slot.user }}
+        </span>
+        <ng-template #liber>Liber</ng-template>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- LOBBY MODAL -->
-<div class="lobby-modal" *ngIf="openLobbySlot">
-  <div class="lobby-content">
-    <h2 class="lobby-title">🎮 Lobby - {{ openLobbySlot.time }}</h2>
-    <p class="lobby-subtitle">Rezervat de: <strong>{{ openLobbySlot.user }}</strong></p>
-
-    <div class="guest-list">
-      <p *ngIf="(openLobbySlot.guests?.length || 0) === 0">Niciun invitat adăugat.</p>
-      <ul>
-        <li *ngFor="let guest of openLobbySlot.guests">
-          👤 {{ guest }}
-        </li>
-      </ul>
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="modalVisible">
+  <div class="modal-box">
+    <h3>📅 Confirmare rezervare</h3>
+    <p><strong>Interval:</strong> {{ selectedStart }} - {{ selectedEnd }}</p>
+    <p><strong>Utilizator:</strong> {{ currentUserName }}</p>
+    <div class="modal-actions">
+      <button class="btn-confirm" (click)="confirmReservation()">Rezervă</button>
+      <button class="btn-cancel" (click)="cancelSelection()">Anulează</button>
     </div>
-
-    <div class="guest-form">
-      <input [(ngModel)]="guestName" placeholder="Nume invitat" />
-      <button (click)="addGuest()" [disabled]="(openLobbySlot.guests?.length || 0) >= maxGuests">
-        Adaugă
-      </button>
-      <p *ngIf="(openLobbySlot.guests?.length || 0) >= maxGuests" class="max-msg">
-        Limită de {{ maxGuests }} invitați atinsă.
-      </p>
-    </div>
-
-    <button class="close-btn" (click)="closeLobby()">✖ Închide</button>
   </div>
 </div>
+
+

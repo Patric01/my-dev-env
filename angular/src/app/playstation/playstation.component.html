@@ -1,8 +1,6 @@
 <div class="booking-wrapper">
   <h2 class="booking-title">Rezervări PlayStation</h2>
 
-  <button class="btn-logout" (click)="logout()">🔄 Schimbă utilizator</button><br>
-
   <label for="duration" class="duration-label">Durată:</label>
   <select id="duration" [(ngModel)]="selectedDuration" class="duration-select">
     <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>

@@ -6,10 +6,16 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem("token");
   }
+  storeToken(token: string): void {
+    localStorage.setItem("token", token);
+  }
 
   logout(): void {
     localStorage.removeItem("token");
     window.location.href = "/";
+  }
+  isAuthenticated(): boolean {
+    return !!this.getToken();
   }
 
   getCurrentUser(): any {

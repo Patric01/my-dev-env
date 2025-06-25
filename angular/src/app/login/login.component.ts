@@ -17,24 +17,22 @@ export class LoginComponent {
   constructor(private router: Router, private authService: AuthService, private http: HttpClient) { }
 
   onLogin() {
-    const payload = { email: this.email };
-    this.errorMessage = ''; // resetăm mesajul anterior
+  const payload = { email: this.email };
+  this.errorMessage = '';
 
-    this.http.post<any>('https://localhost:8000/login', payload)
-      .subscribe({
-        next: (response) => {
-          console.log('Token JWT:', response.access_token);
-          localStorage.setItem('token', response.access_token);
-          // TODO: redirect către /home sau altă pagină
-          this.router.navigate(['/home']); // 🔹 REDIRECT aici
-        },
-        error: (err) => {
-          if (err.status === 400 || err.status === 401) {
-            this.errorMessage = err.error.detail || 'Email invalid sau utilizator inexistent.';
-          } else {
-            this.errorMessage = 'Eroare de server. Încearcă mai târziu.';
-          }
-        }
-      });
-  }
+  this.http.post<any>('https://localhost:8000/login', payload).subscribe({
+    next: (response) => {
+      this.authService.storeToken(response.access_token);
+      this.router.navigate(['/home']);
+    },
+    error: (err) => {
+      if (err.status === 400 || err.status === 401) {
+        this.errorMessage = err.error.detail || 'Email invalid sau utilizator inexistent.';
+      } else {
+        this.errorMessage = 'Eroare de server. Încearcă mai târziu.';
+      }
+    }
+  });
+}
+
 }
