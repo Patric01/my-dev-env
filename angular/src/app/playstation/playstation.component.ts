@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { backend_url_base } from '../constants';
 
 interface Slot {
   time: string;
@@ -61,7 +62,7 @@ export class PlaystationComponent implements OnInit {
   }
 
   getReservationsFromDB(): void {
-    this.http.get<any[]>('https://localhost:8000/reservations?type=playstation').subscribe({
+    this.http.get<any[]>(backend_url_base + 'reservations?type=playstation').subscribe({
       next: (data) => {
         data.forEach(res => {
           const startIndex = this.slots.findIndex(s => s.time === res.start_time.slice(11, 16));
@@ -125,7 +126,7 @@ export class PlaystationComponent implements OnInit {
       end_time: endTime
     };
 
-    this.http.post('https://localhost:8000/reservations', payload).subscribe({
+    this.http.post(backend_url_base + 'reservations', payload).subscribe({
       next: () => {
         this.selectedSlots.forEach((slot, index) => {
           slot.user = name;

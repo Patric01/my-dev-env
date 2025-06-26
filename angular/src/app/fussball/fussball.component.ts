@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { backend_url_base } from '../constants'; // Asigură-te că ai un fișier constants.ts cu această constantă
 
 interface Slot {
   time: string;
@@ -60,7 +61,7 @@ export class FussballComponent implements OnInit {
   }
 
   getReservationsFromDB(): void {
-    this.http.get<any[]>('https://localhost:8000/reservations?type=fussball').subscribe({
+    this.http.get<any[]>(backend_url_base + 'reservations?type=fussball').subscribe({
       next: (data) => {
         data.forEach(res => {
           const startIndex = this.slots.findIndex(s => s.time === res.start_time.slice(11, 16));
@@ -134,7 +135,7 @@ export class FussballComponent implements OnInit {
     console.log('Payload trimis:', payload);
 
 
-    this.http.post('https://localhost:8000/reservations', payload)
+    this.http.post(backend_url_base + 'reservations', payload)
       .subscribe({
         next: () => {
           this.selectedSlots.forEach((slot, index) => {

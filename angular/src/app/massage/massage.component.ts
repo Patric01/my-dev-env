@@ -1,6 +1,7 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
+import { backend_url_base } from '../constants';
 
 interface Slot {
   time: string;
@@ -19,10 +20,10 @@ interface Slot {
 
 
 export class MassageComponent implements OnInit {
- slots: Slot[] = [];
+  slots: Slot[] = [];
   currentUserName: string | null = null;
   availableUsers: string[] = []; // nume utilizatori
-showToast = false;
+  showToast = false;
   selectedSlots: Slot[] = [];
   isSelecting = false;
   modalVisible = false;
@@ -36,7 +37,7 @@ showToast = false;
     this.currentUserName = user?.name || null;
     this.generateSlots();
     this.getReservationsFromDB();
-    
+
   }
 
   generateSlots(): void {
@@ -60,7 +61,7 @@ showToast = false;
   }
 
   getReservationsFromDB(): void {
-    this.http.get<any[]>('https://localhost:8000/reservations?type=massage').subscribe({
+    this.http.get<any[]>(backend_url_base + 'reservations?type=massage').subscribe({
       next: (data) => {
         data.forEach(res => {
           const startIndex = this.slots.findIndex(s => s.time === res.start_time.slice(11, 16));
@@ -132,7 +133,7 @@ showToast = false;
     console.log('Payload trimis:', payload);
 
 
-    this.http.post('https://localhost:8000/reservations', payload)
+    this.http.post(backend_url_base + 'reservations', payload)
       .subscribe({
         next: () => {
           this.selectedSlots.forEach((slot, index) => {

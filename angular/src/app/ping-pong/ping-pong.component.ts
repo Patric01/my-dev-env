@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { backend_url_base } from '../constants';
 
 interface Slot {
   time: string;
@@ -59,7 +60,7 @@ export class PingPongComponent implements OnInit {
   }
 
   getReservationsFromDB(): void {
-    this.http.get<any[]>('https://localhost:8000/reservations?type=ping-pong').subscribe({
+    this.http.get<any[]>(backend_url_base + 'reservations?type=ping-pong').subscribe({
       next: (data) => {
         data.forEach(res => {
           const startIndex = this.slots.findIndex(s => s.time === res.start_time.slice(11, 16));
@@ -131,7 +132,7 @@ export class PingPongComponent implements OnInit {
     console.log('Payload trimis:', payload);
 
 
-    this.http.post('https://localhost:8000/reservations', payload)
+    this.http.post(backend_url_base + 'reservations', payload)
       .subscribe({
         next: () => {
           this.selectedSlots.forEach((slot, index) => {
