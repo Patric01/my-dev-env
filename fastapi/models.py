@@ -50,3 +50,12 @@ class TokenPayload(BaseModel):
     name: str
     role: str
     exp: int  # epoch seconds
+
+
+
+class ReservationGuest(SQLModel, table=True):
+    __tablename__ = "reservation_guests"
+    id: int | None = Field(default=None, primary_key=True)
+    reservation_id: int = Field(foreign_key="reservations.id")
+    user_id: int = Field(foreign_key="users.id")
+    invited_at: datetime | None = Field(default_factory=datetime.utcnow)
