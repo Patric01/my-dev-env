@@ -1,23 +1,32 @@
-<!-- Navbar -->
+<section class="home-container">
+  <!-- Activități -->
+  <div class="left-panel">
+    <div class="activities-card">
+      <a class="activity-card" routerLink="/ping-pong">
+        <img src="assets/pingpong.png" alt="Ping-Pong" />
+        <div class="activity-title">Ping-Pong</div>
+      </a>
+      <a class="activity-card" routerLink="/playstation">
+        <img src="assets/ctr.jpg" alt="PlayStation" />
+        <div class="activity-title">PlayStation</div>
+      </a>
+      <a class="activity-card" routerLink="/fussball">
+        <img src="assets/fussball.jpg" alt="Fussball" />
+        <div class="activity-title">Fussball</div>
+      </a>
+      <a class="activity-card" routerLink="/massage">
+        <img src="assets/masaj.jpg" alt="Masaj" />
+        <div class="activity-title">Masaj</div>
+      </a>
+    </div>
+  </div>
 
-<!-- Activități -->
-<section class="activities-wrapper">
-  <div class="activities-grid">
-    <a class="activity-card" routerLink="/ping-pong">
-      <img src="assets/pingpong.png" alt="Ping-Pong" />
-      <div class="activity-title">Ping-Pong</div>
-    </a>
-    <a class="activity-card" routerLink="/playstation">
-      <img src="assets/ctr.jpg" alt="PlayStation" />
-      <div class="activity-title">PlayStation</div>
-    </a>
-    <a class="activity-card" routerLink="/fussball">
-      <img src="assets/fussball.jpg" alt="Fussball" />
-      <div class="activity-title">Fussball</div>
-    </a>
-    <a class="activity-card" routerLink="/massage">
-      <img src="assets/masaj.jpg" alt="Masaj" />
-      <div class="activity-title">Massage</div>
-    </a>
+  <!-- Trofeu -->
+  <div class="right-panel">
+    <div class="trophy-card">
+      <img src="assets/trophy.png" alt="Trofeu" class="trophy-img" />
+      <h3 class="trophy-title">Pregătit pentru competiție?</h3>
+      <button class="create-btn" routerLink="/create-tournament">Creează un turneu</button>
+    </div>
   </div>
 </section>
