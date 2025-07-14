@@ -5,12 +5,15 @@ import { AuthService } from '../auth/auth.service';
 
 
 interface ReservationBlock {
+  id: number;
   user: string;
   start: string;
   end: string;
   top: number;
   height: number;
   mine: boolean;
+  date: string;
+  guests?: { name: string; email: string; status: string }[]; // ✅ adăugat
 }
 
 @Component({
@@ -19,6 +22,8 @@ interface ReservationBlock {
   templateUrl: './ping-pong.component.html',
   styleUrls: ['./ping-pong.component.css']
 })
+
+
 export class PingPongComponent implements OnInit {
   hours: string[] = Array.from({ length: 15 }, (_, i) => `${8 + i}:00`);
   blocks: ReservationBlock[] = [];
@@ -35,13 +40,21 @@ export class PingPongComponent implements OnInit {
   modalStart = '';
   modalEnd = '';
   slots: { time: string }[] = [];
+  selectedReservation: ReservationBlock | null = null;
+  users: { id: number, name: string, email: string }[] = [];
+  invitedUserId: number | null = null;
+  reservationDetailsVisible = false;
+  currentUserEmail: string | null = null;
+
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     this.currentUserName = user?.name || null;
+    this.currentUserEmail = user?.email || null;
     this.loadReservations();
+
   }
 
   pad(n: number): string {
@@ -70,27 +83,43 @@ export class PingPongComponent implements OnInit {
     return `${pad(hours)}:${pad(minutes)}`;
   }
 
+  formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ro-RO', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
 
   loadReservations(): void {
+    const todayStr = new Date().toISOString().split('T')[0];
+
     this.http.get<any[]>(backend_url_base + 'reservations?type=ping-pong').subscribe(data => {
-      this.blocks = data.map(res => {
-        const start = new Date(res.start_time);
-        const end = new Date(res.end_time);
+      this.blocks = data
+        .filter(res => res.start_time.startsWith(todayStr))  // ✅ doar rezervări din ziua curentă
+        .map(res => {
+          const start = new Date(res.start_time);
+          const end = new Date(res.end_time);
+          const minutesFrom8AM = (start.getHours() - 8) * 60 + start.getMinutes();
+          const durationMinutes = (end.getTime() - start.getTime()) / 60000;
 
-        const minutesFrom8AM = (start.getHours() - 8) * 60 + start.getMinutes();
-        const durationMinutes = (end.getTime() - start.getTime()) / 60000;
-
-        return {
-          user: res.user_name,
-          start: res.start_time.slice(11, 16),
-          end: res.end_time.slice(11, 16),
-          top: minutesFrom8AM,          // direct în pixeli (1 min = 1px)
-          height: durationMinutes,      // direct în pixeli
-          mine: res.user_name === this.currentUserName
-        };
-      });
-    })
+          return {
+            id: res.id,
+            user: res.user_name,
+            start: res.start_time.slice(11, 16),
+            end: res.end_time.slice(11, 16),
+            date: res.start_time.slice(0, 10),
+            top: minutesFrom8AM,
+            height: durationMinutes,
+            mine: res.user_name === this.currentUserName,
+            guests: res.guests || []
+          };
+        });
+    });
   }
+
 
   isOverlapping(start: Date, end: Date): boolean {
     return this.blocks.some(block => {
@@ -119,11 +148,13 @@ export class PingPongComponent implements OnInit {
     maxEnd.setHours(22, 0, 0, 0);
     if (end.getTime() > maxEnd.getTime()) {
       alert("Rezervările nu pot depăși ora 22:00.");
+      this.modalVisible = false;
       return;
     }
 
     if (this.isOverlapping(start, end)) {
       alert('Intervalul selectat se suprapune cu o rezervare existentă.');
+      this.modalVisible = false;
       return;
     }
 
@@ -222,6 +253,102 @@ export class PingPongComponent implements OnInit {
 
   closeModal(): void {
     this.modalVisible = false;
+  }
+
+
+  openReservationDetails(block: ReservationBlock): void {
+    this.selectedReservation = block;
+    this.reservationDetailsVisible = true;
+    this.fetchUsers();
+    this.fetchGuests(block.id);
+  }
+
+  fetchGuests(reservationId: number): void {
+    this.http.get<any[]>(`${backend_url_base}reservations/${reservationId}/guests`)
+      .subscribe(data => {
+        if (this.selectedReservation) {
+          this.selectedReservation.guests = data.map(g => ({
+            id: g.user_id,
+            name: g.user_name,
+            email: g.user_email,
+            status: g.status // pending / accepted / declined
+          }));
+        }
+      });
+  }
+
+
+  openDetails(block: ReservationBlock, event: MouseEvent): void {
+    event.stopPropagation();
+
+    if (!block.mine) return;  // 👈 nu deschide dacă nu e a ta
+
+    this.selectedReservation = block;
+    this.reservationDetailsVisible = true;
+    this.fetchUsers();
+    this.fetchGuests(block.id); // ✅ Adaugă asta!
+  }
+
+
+  fetchUsers(): void {
+    this.http.get<any[]>(`${backend_url_base}users/search?q=`).subscribe(data => {
+      this.users = data;
+    });
+  }
+
+  inviteGuest(): void {
+    if (!this.selectedReservation || !this.invitedUserId) return;
+
+    this.http.post(`${backend_url_base}reservations/${this.selectedReservation.id}/invite`, {
+      guest_ids: [this.invitedUserId]
+    }).subscribe({
+      next: () => {
+        alert('Invitat cu succes!');
+        this.invitedUserId = null;
+        this.fetchGuests(this.selectedReservation!.id);  // ✅ reîncarcă lista de invitați
+      },
+      error: () => alert('Nu poti invita un jucator de mai multe ori.')
+    });
+    this.fetchGuests(this.selectedReservation!.id); // după invitare
+
+
+  }
+
+  respondToInvite(accept: boolean): void {
+    if (!this.selectedReservation) return;
+    const status = accept ? 'accepted' : 'declined';
+
+    this.http.post(`${backend_url_base}reservations/${this.selectedReservation.id}/respond`, {
+      status
+    }).subscribe({
+      next: () => {
+        alert(`Ai ${accept ? 'acceptat' : 'refuzat'} invitația.`);
+        this.fetchGuests(this.selectedReservation!.id);
+      },
+      error: () => alert('Eroare la trimiterea răspunsului.')
+    });
+  }
+
+  respondToInvitation(reservationId: number, response: 'accepted' | 'declined'): void {
+    this.http.post(`${backend_url_base}reservations/${reservationId}/respond`, { response }).subscribe({
+      next: () => {
+        alert('Răspunsul a fost trimis cu succes.');
+        this.loadReservations();
+      },
+      error: () => alert('Eroare la trimiterea răspunsului.')
+    });
+  }
+
+  isCurrentUserInvited(): boolean {
+    return this.selectedReservation?.guests?.some(g => g.email === this.currentUserEmail) ?? false;
+  }
+
+  get isMaxGuestsReached(): boolean {
+    return (this.selectedReservation?.guests?.length || 0) >= 3;
+  }
+
+  isUserAlreadyInvited(email: string): boolean {
+    return this.selectedReservation?.guests?.some(g => g.email === email) ?? false;
   }
 
   logout(): void {

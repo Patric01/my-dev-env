@@ -4,7 +4,7 @@
   background: #fff;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
 }
 
@@ -45,7 +45,8 @@ select {
   display: flex;
   margin-top: 30px;
   height: 900px;
-  min-width: 700px; /* 👈 opțional, ca să nu se "strângă" */
+  min-width: 700px;
+  /* 👈 opțional, ca să nu se "strângă" */
 }
 
 
@@ -70,10 +71,12 @@ select {
   position: relative;
   background: #f4f6f8;
   border-left: 1px solid #ccc;
-  min-width: 600px;  /* 👈 adaugă o lățime minimă! */
+  min-width: 600px;
+  /* 👈 adaugă o lățime minimă! */
   overflow: hidden;
   padding-top: 30px;
 }
+
 .grid-lines {
   position: absolute;
   width: 100%;
@@ -93,7 +96,8 @@ select {
   top: 0;
   left: 0;
   z-index: 1;
-  pointer-events: none;  /* ✅ click-urile trec prin rezervări */
+  pointer-events: none;
+  /* ✅ click-urile trec prin rezervări */
 }
 
 .event {
@@ -106,9 +110,11 @@ select {
   padding: 4px 8px;
   font-size: 12px;
   line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s;
-  pointer-events: none;  /* ✅ NU mai blochează click-urile */
+  pointer-events: auto;
+  /* 👈 permite click */
+  cursor: pointer;
 }
 
 .event.mine {
@@ -151,9 +157,11 @@ select {
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.5);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,8 +173,18 @@ select {
   padding: 30px;
   border-radius: 12px;
   width: 320px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
+
+  select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
 }
 
 .modal-actions {
@@ -179,6 +197,7 @@ select {
   background-color: #ff5640;
   color: white;
 }
+
 .btn.confirm:hover {
   background-color: #e94c36;
 }
@@ -192,8 +211,72 @@ select {
   background-color: antiquewhite;
 }
 
+.guest-list {
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.guest-list li {
+  margin-bottom: 8px;
+}
+
+.guest-list span.pending { color: orange; }
+.guest-list span.accepted { color: green; }
+.guest-list span.declined { color: red; }
+
+.btn.accept {
+  margin-left: 10px;
+  background-color: green;
+  color: white;
+}
+
+.btn.decline {
+  background-color: red;
+  color: white;
+  margin-left: 5px;
+}
+
+.guest-status.pending {
+  color: #ffa500;
+  font-weight: bold;
+}
+
+.guest-status.accepted {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.guest-status.declined {
+  color: #e53935;
+  font-weight: bold;
+}
+.limit-warning {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.event.mine:hover {
+  background-color: #4CAF50;
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+
 
 @keyframes fadeOut {
-  0%, 90% { opacity: 1; }
-  100% { opacity: 0; }
+
+  0%,
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

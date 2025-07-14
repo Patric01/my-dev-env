@@ -138,6 +138,29 @@ def invite_guests(
     session.commit()
     return {"message": "Guests invited successfully"}
 
+
+@api.get("/reservations/{reservation_id}/guests")
+def get_guests_for_reservation(
+    reservation_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    statement = (
+        select(User)
+        .join(ReservationGuest, ReservationGuest.user_id == User.id)
+        .where(ReservationGuest.reservation_id == reservation_id)
+    )
+    guests = session.exec(statement).all()
+
+    return [
+        {
+            "user_id": guest.id,
+            "user_name": guest.name,
+            "user_email": guest.email,
+            "status": "pending"  # hardcodăm pentru început
+        }
+        for guest in guests
+    ]
 # this is in endpoint for searching users for the search bar
 @api.get("/users/search")
 def search_users(

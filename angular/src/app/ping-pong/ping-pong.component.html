@@ -1,3 +1,4 @@
+<!-- Calendarul -->
 <div class="calendar-container">
   <div class="calendar-header">
     <h2>🏓 Rezervări Ping-Pong</h2>
@@ -6,7 +7,6 @@
       <select [(ngModel)]="selectedDuration">
         <option *ngFor="let d of durations" [value]="d">{{ d }} minute</option>
       </select>
-      <!-- <button class="btn" [disabled]="!selectedStart" (click)="confirmReservation()">Rezervă</button> -->
     </div>
   </div>
 
@@ -14,32 +14,32 @@
     <div class="time-column">
       <div *ngFor="let hour of hours" class="hour">{{ hour }}</div>
     </div>
-    <div class="grid-column"  (click)="openModal(getHourFromOffset($event.offsetY))"
-     (mousemove)="handleHover($event)"
-     (mouseleave)="hoverVisible = false">
-<div *ngIf="hoverVisible" class="hover-block" [style.top.px]="hoverTop" [style.height.px]="selectedDuration"></div>
+    <div class="grid-column" (click)="openModal(getHourFromOffset($event.offsetY))" (mousemove)="handleHover($event)"
+      (mouseleave)="hoverVisible = false">
 
-<div *ngIf="hoverVisible" class="hover-tooltip" [style.top.px]="hoverTop" style="left: 120px;">
-  {{ hoverStart }} - {{ hoverEnd }}
-</div>
-  <div class="reservations">
-    <div *ngFor="let block of blocks"
-         class="event"
-         [style.top.px]="block.top"
-         [style.height.px]="block.height"
-         [ngClass]="{ 'mine': block.mine }">
-      {{ block.mine ? 'Tu' : block.user }}
+      <div *ngIf="hoverVisible" class="hover-block" [style.top.px]="hoverTop" [style.height.px]="selectedDuration">
+      </div>
+      <div *ngIf="hoverVisible" class="hover-tooltip" [style.top.px]="hoverTop" style="left: 120px;">
+        {{ hoverStart }} - {{ hoverEnd }}
+      </div>
+
+      <div class="reservations">
+        <div *ngFor="let block of blocks" class="event" [style.top.px]="block.top" [style.height.px]="block.height"
+          [ngClass]="{ 'mine': block.mine }" (click)="openDetails(block, $event)">
+          {{ block.mine ? 'Tu' : block.user }}
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-  </div>
+<!-- Toast -->
+<div class="toast" *ngIf="showToast">
+  ✅ Rezervarea a fost efectuată cu succes!
+</div>
 
-  <div class="toast" *ngIf="showToast">
-    ✅ Rezervarea a fost efectuată cu succes!
-  </div>
-
-  <div class="modal-overlay" *ngIf="modalVisible">
+<!-- Modal rezervare nouă -->
+<div class="modal-overlay" *ngIf="modalVisible">
   <div class="modal-box">
     <h3>Confirmare rezervare</h3>
     <p>Rezervi între <strong>{{ modalStart }}</strong> și <strong>{{ modalEnd }}</strong>?</p>
@@ -50,4 +50,51 @@
     </div>
   </div>
 </div>
+
+<!-- Modal detalii rezervare -->
+<!-- Modal detalii rezervare -->
+<div class="modal-overlay" *ngIf="reservationDetailsVisible">
+  <div class="modal-box">
+    <h3>Detalii rezervare</h3>
+    <p><strong>Utilizator:</strong> {{ selectedReservation?.user }}</p>
+    <p><strong>Dată:</strong> {{ formatDate(selectedReservation?.date || '') }}</p>
+    <p><strong>Interval:</strong> {{ selectedReservation?.start }} – {{ selectedReservation?.end }}</p>
+
+    <!-- Dacă este creatorul rezervării -->
+    <div *ngIf="selectedReservation?.mine && !isMaxGuestsReached">
+      <label for="guest">Invită coleg:</label>
+      <select [(ngModel)]="invitedUserId">
+        <ng-container *ngFor="let u of users">
+          <option *ngIf="!isUserAlreadyInvited(u.email)" [value]="u.id">
+            {{ u.name }} ({{ u.email }})
+          </option>
+        </ng-container>
+      </select>
+    </div>
+
+    <!-- Mesaj că ai atins limita -->
+    <p *ngIf="selectedReservation?.mine && isMaxGuestsReached" class="limit-warning">
+      ❌ Limită atinsă: maxim 3 invitați.
+    </p>
+
+    <!-- Afișare invitați existenți -->
+    <div *ngIf="selectedReservation?.guests?.length">
+      <h4>Invitați:</h4>
+      <ul>
+        <li *ngFor="let guest of selectedReservation?.guests ?? []">
+          {{ guest.name }} ({{ guest.email }}) -
+          <span class="guest-status {{ guest.status }}">{{ guest.status }}</span>
+        </li>
+      </ul>
+    </div>
+
+
+    <div class="modal-actions">
+      <button class="btn confirm" (click)="inviteGuest()" [disabled]="isMaxGuestsReached">
+        Invită
+      </button>
+
+      <button class="btn cancel" (click)="reservationDetailsVisible = false">Închide</button>
+    </div>
+  </div>
 </div>

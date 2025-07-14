@@ -1,156 +1,280 @@
-.booking-wrapper {
-  max-width: 600px;
-  margin: 60px auto;
+.calendar-container {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
 }
 
-.booking-title {
-  text-align: center;
-  color: #192B37;
-  font-size: 28px;
-  margin-bottom: 32px;
-}
-
-.booking-card.grid-view {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  max-height: 440px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-
-.time-slot-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 8px 14px;
-  color: #666;
-}
-
-.time-slot {
+.calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: #FF5640;
-  transition: background 0.2s ease;
-  border: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.time-slot:hover:not(.reserved) {
-  background-color: #f0f0f0;
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn {
+  background-color: #ff5640;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+
+
+.calendar-body {
+  display: flex;
+  margin-top: 30px;
+  height: 900px;
+  min-width: 700px;
+  /* 👈 opțional, ca să nu se "strângă" */
+}
+
+
+.time-column {
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hour {
+  height: 60px;
+  line-height: 60px;
+  text-align: right;
+  padding-right: 10px;
+  font-size: 13px;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.grid-column {
+  flex: 1;
+  position: relative;
+  background: #f4f6f8;
+  border-left: 1px solid #ccc;
+  min-width: 600px;
+  /* 👈 adaugă o lățime minimă! */
+  overflow: hidden;
+  padding-top: 30px;
+}
+
+.grid-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.grid-line {
+  height: 60px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.reservations {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* ✅ click-urile trec prin rezervări */
+}
+
+.event {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  background: #444;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+  pointer-events: auto;
+  /* 👈 permite click */
   cursor: pointer;
 }
 
-.time-slot.selected {
-  background-color: rgba(255, 86, 64, 0.2);
-  border-color: #ff5640;
+.event.mine {
+  background: #ff5640;
 }
 
-.time-slot.reserved {
-  background-color: #f1f1f1;
-  color: #aaa;
-  cursor: not-allowed;
+.hover-block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 150, 255, 0.1);
+  border: 1px dashed #00aaff;
+  z-index: 5;
+  pointer-events: none;
 }
 
-.slot-time {
-  font-weight: 500;
+.hover-tooltip {
+  position: absolute;
+  background: #222;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
 }
 
-.slot-status {
-  font-size: 13px;
-  color: #555;
-  font-style: italic;
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4CAF50;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  animation: fadeOut 3s forwards;
 }
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 999;
 }
 
 .modal-box {
   background: #fff;
-  padding: 24px 32px;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  border-radius: 12px;
   width: 320px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
-}
 
-.modal-box h3 {
-  font-size: 18px;
-  margin-bottom: 16px;
-  color: #192B37;
+  select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
 }
 
 .modal-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top: 20px;
 }
 
-.btn-confirm,
-.btn-cancel {
-  padding: 8px 16px;
-  border: none;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-confirm {
+.btn.confirm {
   background-color: #ff5640;
   color: white;
 }
 
-.btn-cancel {
+.btn.confirm:hover {
+  background-color: #e94c36;
+}
+
+.btn.cancel {
   background-color: #ccc;
   color: #333;
 }
 
-.toast-success {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background-color: #4CAF50;
+.btn.cancel:hover {
+  background-color: antiquewhite;
+}
+
+.guest-list {
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.guest-list li {
+  margin-bottom: 8px;
+}
+
+.guest-list span.pending { color: orange; }
+.guest-list span.accepted { color: green; }
+.guest-list span.declined { color: red; }
+
+.btn.accept {
+  margin-left: 10px;
+  background-color: green;
   color: white;
-  padding: 14px 20px;
-  border-radius: 10px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.btn.decline {
+  background-color: red;
+  color: white;
+  margin-left: 5px;
+}
+
+.guest-status.pending {
+  color: #ffa500;
   font-weight: bold;
-  font-size: 15px;
-  z-index: 9999;
-  animation: fadeSlideIn 0.4s ease, fadeSlideOut 0.4s ease 2.6s forwards;
 }
 
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
+.guest-status.accepted {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.guest-status.declined {
+  color: #e53935;
+  font-weight: bold;
+}
+.limit-warning {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.event.mine:hover {
+  background-color: #4CAF50;
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+@keyframes fadeOut {
+
+  0%,
+  90% {
     opacity: 1;
-    transform: translateY(0);
   }
-}
 
-@keyframes fadeSlideOut {
-  to {
+  100% {
     opacity: 0;
-    transform: translateY(40px);
   }
 }
