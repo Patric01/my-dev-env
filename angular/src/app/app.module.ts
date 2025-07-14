@@ -18,6 +18,7 @@ import { FussballComponent } from './fussball/fussball.component';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { JwtInterceptor } from './auth/jwt.interceptor';
 import { MassageComponent } from './massage/massage.component';
+import { TournamentMainpgComponent } from './tournament-mainpg/tournament-mainpg.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { MassageComponent } from './massage/massage.component';
     PingPongComponent,
     PlaystationComponent,
     FussballComponent,
-    MassageComponent
+    MassageComponent,
+    TournamentMainpgComponent
   ],
   imports: [
     BrowserModule,

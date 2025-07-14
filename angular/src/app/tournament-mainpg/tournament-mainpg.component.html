@@ -1,0 +1,25 @@
+<div class="tournament-wrapper">
+  <div class="tournament-header">
+    <h2>🏆 Turnee active</h2>
+    <select [(ngModel)]="selectedFilter">
+      <option value="all">Toate</option>
+      <option value="pingpong">Ping-Pong</option>
+      <option value="fifa">FIFA</option>
+      <option value="fussball">Fussball</option>
+      <option value="mortal-kombat">Mortal Kombat</option>
+    </select>
+  </div>
+
+  <div class="tournament-grid">
+    <div class="tournament-card" *ngFor="let t of filteredTournaments">
+      <img [src]="t.image" alt="Game image" />
+      <h3>{{ t.name }}</h3>
+      <p><strong>Joc:</strong> {{ t.game }}</p>
+      <p><strong>Data:</strong> {{ t.date | date:'mediumDate' }}</p>
+      <p><strong>Participanți:</strong> {{ t.players.length }}</p>
+      <p><strong>Status:</strong> {{ t.status }}</p>
+
+      <button class="btn">Vezi detalii</button>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import { PingPongComponent } from './ping-pong/ping-pong.component';
 import { PlaystationComponent } from './playstation/playstation.component';
 import { FussballComponent } from './fussball/fussball.component';
 import { MassageComponent } from './massage/massage.component';
+import { TournamentMainpgComponent } from './tournament-mainpg/tournament-mainpg.component';
 
 const routes: Routes = [
     { path: '', component: LoginComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
     { path: 'playstation', component: PlaystationComponent },
     { path: 'fussball', component: FussballComponent },
     { path: 'massage', component: MassageComponent },
+    { path: 'tournament', component: TournamentMainpgComponent },
   { path: '**', redirectTo: '' }
 ];
 
