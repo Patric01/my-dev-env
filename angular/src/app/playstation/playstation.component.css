@@ -267,6 +267,97 @@ select {
   cursor: pointer;
 }
 
+.game-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.event-user {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-user {
+  font-weight: bold;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-game {
+  font-size: 11px;
+  color: #fff;
+  opacity: 0.9;
+  margin-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  text-align: right;
+}
+
+
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alert-box {
+  background: white;
+  padding: 24px 30px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  max-width: 340px;
+  animation: scaleFadeIn 0.25s ease-out;
+}
+
+.alert-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.alert-message {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.btn.alert-close {
+  background-color: #ff5640;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn.alert-close:hover {
+  background-color: #e94c36;
+}
+
+@keyframes scaleFadeIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 @keyframes fadeOut {
 
   0%,

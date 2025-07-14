@@ -22,6 +22,8 @@ def get_reservations_by_type(session: Session, type: str) -> list[Reservation]:
             Element.name.label("element_name"),
             Reservation.start_time,
             Reservation.end_time,
+            Reservation.game,         # ✅ adăugat
+            Reservation.max_guests 
         )
         .join(Element, Reservation.element_id == Element.id)
         .join(User, Reservation.user_id == User.id)
@@ -35,6 +37,8 @@ def get_reservations_by_type(session: Session, type: str) -> list[Reservation]:
             "element_name": r.element_name,
             "start_time": r.start_time,
             "end_time": r.end_time,
+            "game": r.game,                   # ✅
+            "max_guests": r.max_guests 
         }
         for r in results
     ]
@@ -48,7 +52,13 @@ def get_element_by_type(session: Session, type: str) -> Element:
 
 
 def add_reservation(
-    session: Session, user_id: int, type: str, start_time: str, end_time: str
+    session: Session, 
+    user_id: int, 
+    type: str, 
+    start_time: str, 
+    end_time: str,
+    game: str | None = None,
+    max_guests: int = 1,
 ) -> Reservation:
 
     element = get_element_by_type(session, type)
@@ -70,6 +80,8 @@ def add_reservation(
         element_id=element.id,
         start_time=start_time,
         end_time=end_time,
+        game=game,
+        max_guests=max_guests
     )
     session.add(reservation)
     session.commit()

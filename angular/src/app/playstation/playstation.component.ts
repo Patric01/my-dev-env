@@ -14,6 +14,9 @@ interface ReservationBlock {
   mine: boolean;
   date: string;  // ✅ nou
   guests?: { name: string; email: string; status: string }[];
+  game?: string;
+  maxGuests?: number;
+
 }
 
 @Component({
@@ -44,7 +47,20 @@ export class PlaystationComponent implements OnInit {
   invitedUserId: number | null = null;
   reservationDetailsVisible = false;
   currentUserEmail: string | null = null;
+  selectedGame: string = '';  // sau null dacă vrei
+  alertMessage: string = '';
+  alertVisible: boolean = false;
 
+
+
+  games = [
+    { name: 'EA FC24', maxGuests: 1, },
+    { name: 'EA FC25', maxGuests: 1 },
+    { name: 'Mortal Kombat 11 Ultimate', maxGuests: 1 },
+    { name: 'Rabbids Party of Legends', maxGuests: 3 },
+    { name: 'F1 25', maxGuests: 1 },
+    { name: 'Gran Turismo 7', maxGuests: 1 },
+  ];
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
@@ -60,6 +76,20 @@ export class PlaystationComponent implements OnInit {
     return n < 10 ? '0' + n : n.toString();
   }
 
+
+  //   getGameImage(game: string): string {
+  //   const g = this.games.find(g => g.name === game);
+  //   return g?.image || 'assets/games/default.png';
+  // }
+
+
+  showAlert(message: string): void {
+    this.alertMessage = message;
+    this.alertVisible = true;
+  }
+  closeAlert(): void {
+    this.alertVisible = false;
+  }
 
   getReservationsFromDB(): void {
     this.http.get<any[]>(backend_url_base + 'reservations?type=playstation').subscribe({
@@ -113,12 +143,19 @@ export class PlaystationComponent implements OnInit {
             top: minutesFrom8AM,
             height: durationMinutes,
             mine: res.user_name === this.currentUserName,
-            guests: res.guests || []
+            guests: res.guests || [],
+            game: res.game,
+            maxGuests: res.max_guests
+
           };
         });
     });
   }
 
+  getMaxGuestsForGame(game: string): number {
+    const found = this.games.find(g => g.name === game);
+    return found?.maxGuests || 1;
+  }
 
   isOverlapping(start: Date, end: Date): boolean {
     return this.blocks.some(block => {
@@ -146,13 +183,15 @@ export class PlaystationComponent implements OnInit {
     const maxEnd = new Date();
     maxEnd.setHours(22, 0, 0, 0);
     if (end.getTime() > maxEnd.getTime()) {
-      alert("Rezervările nu pot depăși ora 22:00.");
+      console.log('interval imposibil');
+      this.showAlert("Rezervările nu pot depăși ora 22:00.");
       this.modalVisible = false;
       return;
     }
 
     if (this.isOverlapping(start, end)) {
-      alert('Intervalul selectat se suprapune cu o rezervare existentă.');
+      console.log('interval imposibil');
+      this.showAlert("Intervalul selectat se suprapune cu o rezervare existentă.");
       this.modalVisible = false;
       return;
     }
@@ -161,7 +200,9 @@ export class PlaystationComponent implements OnInit {
     const payload = {
       type: 'playstation',
       start_time: `${today}T${this.pad(h)}:${this.pad(m)}:00`,
-      end_time: `${today}T${this.pad(end.getHours())}:${this.pad(end.getMinutes())}:00`
+      end_time: `${today}T${this.pad(end.getHours())}:${this.pad(end.getMinutes())}:00`,
+      game: this.selectedGame,
+      max_guests: this.getMaxGuestsForGame(this.selectedGame)
     };
 
     // <<<<<<< Updated upstream
@@ -302,7 +343,7 @@ export class PlaystationComponent implements OnInit {
       guest_ids: [this.invitedUserId]
     }).subscribe({
       next: () => {
-        alert('Invitat cu succes!');
+        // alert('Invitat cu succes!');
         this.invitedUserId = null;
         this.fetchGuests(this.selectedReservation!.id);  // ✅ reîncarcă lista de invitați
       },
@@ -343,12 +384,14 @@ export class PlaystationComponent implements OnInit {
   }
 
   get isMaxGuestsReached(): boolean {
-    return (this.selectedReservation?.guests?.length || 0) >= 1;
+    return (this.selectedReservation?.guests?.length || 0) >= (this.selectedReservation?.maxGuests || 0);
   }
+
 
   isUserAlreadyInvited(email: string): boolean {
     return this.selectedReservation?.guests?.some(g => g.email === email) ?? false;
   }
+
 
   logout(): void {
     this.authService.logout();

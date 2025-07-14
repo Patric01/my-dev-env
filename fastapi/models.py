@@ -28,7 +28,6 @@ class Element(SQLModel, table=True):
 
 
 class Reservation(SQLModel, table=True):
-
     __tablename__ = "reservations"
 
     id: int = Field(default=None, primary_key=True)
@@ -36,14 +35,18 @@ class Reservation(SQLModel, table=True):
     element_id: int = Field(default=None, foreign_key="elements.id")
     start_time: datetime
     end_time: datetime
+    game: str | None = None                    # ✅ nou
+    max_guests: int = 1                        # ✅ nou
     created_at: datetime = Field(default_factory=datetime.now)
+
 
 
 class ReservationRequest(BaseModel):
     type: str
     start_time: datetime
     end_time: datetime
-
+    game: str | None = None            # 👈 adăugat
+    max_guests: int = 1 
 
 class TokenPayload(BaseModel):
     email: str

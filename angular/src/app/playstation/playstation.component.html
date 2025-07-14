@@ -26,75 +26,101 @@
       <div class="reservations">
         <div *ngFor="let block of blocks" class="event" [style.top.px]="block.top" [style.height.px]="block.height"
           [ngClass]="{ 'mine': block.mine }" (click)="openDetails(block, $event)">
-          {{ block.mine ? 'Tu' : block.user }}
+
+          <div class="event-header">
+            <span class="event-user">{{ block.mine ? 'Tu' : block.user }}</span>
+            <span class="event-game" *ngIf="block.game">{{ block.game }}</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" *ngIf="showToast">
+      ✅ Rezervarea a fost efectuată cu succes!
+    </div>
+
+    <!-- Modal rezervare nouă -->
+    <div class="modal-overlay" *ngIf="modalVisible">
+      <div class="modal-box">
+        <h3>Confirmare rezervare</h3>
+        <p>Rezervi între <strong>{{ modalStart }}</strong> și <strong>{{ modalEnd }}</strong>?</p>
+        <p><strong>Utilizator:</strong> {{ currentUserName || 'Tu' }}</p>
+        <label for="game">Alege jocul:</label>
+        <select [(ngModel)]="selectedGame">
+          <option *ngFor="let g of games" [value]="g.name">{{ g.name }}</option>
+        </select>
+
+
+        <div class="modal-actions">
+          <button class="btn confirm" (click)="confirmReservation()">Confirmă</button>
+          <button class="btn cancel" (click)="closeModal()">Anulează</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Toast -->
-<div class="toast" *ngIf="showToast">
-  ✅ Rezervarea a fost efectuată cu succes!
-</div>
+    <!-- Modal detalii rezervare -->
+    <!-- Modal detalii rezervare -->
+    <div class="modal-overlay" *ngIf="reservationDetailsVisible">
+      <div class="modal-box">
+        <h3>Detalii rezervare</h3>
+        <p><strong>Utilizator:</strong> {{ selectedReservation?.user }}</p>
+        <p><strong>Joc:</strong> {{ selectedReservation?.game }}</p>
 
-<!-- Modal rezervare nouă -->
-<div class="modal-overlay" *ngIf="modalVisible">
-  <div class="modal-box">
-    <h3>Confirmare rezervare</h3>
-    <p>Rezervi între <strong>{{ modalStart }}</strong> și <strong>{{ modalEnd }}</strong>?</p>
-    <p><strong>Utilizator:</strong> {{ currentUserName || 'Tu' }}</p>
-    <div class="modal-actions">
-      <button class="btn confirm" (click)="confirmReservation()">Confirmă</button>
-      <button class="btn cancel" (click)="closeModal()">Anulează</button>
+        <p><strong>Dată:</strong> {{ formatDate(selectedReservation?.date || '') }}</p>
+        <p><strong>Interval:</strong> {{ selectedReservation?.start }} – {{ selectedReservation?.end }}</p>
+
+        <!-- Dacă este creatorul rezervării -->
+        <div *ngIf="selectedReservation?.mine && !isMaxGuestsReached">
+          <label for="guest">Invită coleg:</label>
+          <select [(ngModel)]="invitedUserId">
+            <ng-container *ngFor="let u of users">
+              <option *ngIf="!isUserAlreadyInvited(u.email)" [value]="u.id">
+                {{ u.name }} ({{ u.email }})
+              </option>
+            </ng-container>
+          </select>
+        </div>
+
+        <!-- Mesaj că ai atins limita -->
+        <p *ngIf="selectedReservation?.mine && isMaxGuestsReached" class="limit-warning">
+          ❌ Limită atinsă: maxim {{ selectedReservation?.maxGuests }} {{ selectedReservation?.maxGuests === 1 ?
+          'invitat'
+          :
+          'invitați' }}.
+        </p>
+
+
+        <!-- Afișare invitați existenți -->
+        <div *ngIf="selectedReservation?.guests?.length">
+          <h4>Invitați:</h4>
+          <ul>
+            <li *ngFor="let guest of selectedReservation?.guests ?? []">
+              {{ guest.name }} ({{ guest.email }}) -
+              <span class="guest-status {{ guest.status }}">{{ guest.status }}</span>
+            </li>
+          </ul>
+        </div>
+
+
+        <div class="modal-actions">
+          <button class="btn confirm" (click)="inviteGuest()" [disabled]="isMaxGuestsReached">
+            Invită
+          </button>
+
+          <button class="btn cancel" (click)="reservationDetailsVisible = false">Închide</button>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="alert-overlay" *ngIf="alertVisible">
+      <div class="alert-box">
+        <div class="alert-icon">⚠️</div>
+        <p class="alert-message">{{ alertMessage }}</p>
+        <button class="btn alert-close" (click)="closeAlert()">OK</button>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- Modal detalii rezervare -->
-<!-- Modal detalii rezervare -->
-<div class="modal-overlay" *ngIf="reservationDetailsVisible">
-  <div class="modal-box">
-    <h3>Detalii rezervare</h3>
-    <p><strong>Utilizator:</strong> {{ selectedReservation?.user }}</p>
-    <p><strong>Dată:</strong> {{ formatDate(selectedReservation?.date || '') }}</p>
-    <p><strong>Interval:</strong> {{ selectedReservation?.start }} – {{ selectedReservation?.end }}</p>
-
-    <!-- Dacă este creatorul rezervării -->
-    <div *ngIf="selectedReservation?.mine && !isMaxGuestsReached">
-      <label for="guest">Invită coleg:</label>
-      <select [(ngModel)]="invitedUserId">
-        <ng-container *ngFor="let u of users">
-          <option *ngIf="!isUserAlreadyInvited(u.email)" [value]="u.id">
-            {{ u.name }} ({{ u.email }})
-          </option>
-        </ng-container>
-      </select>
-    </div>
-
-    <!-- Mesaj că ai atins limita -->
-    <p *ngIf="selectedReservation?.mine && isMaxGuestsReached" class="limit-warning">
-      ❌ Limită atinsă: maxim 1 invitat.
-    </p>
-
-    <!-- Afișare invitați existenți -->
-    <div *ngIf="selectedReservation?.guests?.length">
-      <h4>Invitați:</h4>
-      <ul>
-        <li *ngFor="let guest of selectedReservation?.guests ?? []">
-          {{ guest.name }} ({{ guest.email }}) -
-          <span class="guest-status {{ guest.status }}">{{ guest.status }}</span>
-        </li>
-      </ul>
-    </div>
-
-
-    <div class="modal-actions">
-      <button class="btn confirm" (click)="inviteGuest()" [disabled]="isMaxGuestsReached">
-        Invită
-      </button>
-
-      <button class="btn cancel" (click)="reservationDetailsVisible = false">Închide</button>
-    </div>
-  </div>
-</div>

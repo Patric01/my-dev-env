@@ -78,6 +78,8 @@ def add_reservation(
             reservation.type,
             reservation.start_time,
             reservation.end_time,
+            game=reservation.game,
+            max_guests=reservation.max_guests
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -108,35 +110,38 @@ def invite_guests(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    # Get reservation and element type
+    # Get reservation
     reservation = session.get(Reservation, reservation_id)
     if not reservation:
         raise HTTPException(status_code=404, detail="Reservation not found")
-    element = session.get(Element, reservation.element_id)
-    if not element:
-        raise HTTPException(status_code=404, detail="Element not found")
 
-    # Set max guests per type
-    max_guests = 0
-    if element.type == "ping-pong":
-        max_guests = 3
-    elif element.type == "playstation":
-        max_guests = 1
-    elif element.type == "fussball":
-        max_guests = 3
+    # Folosește max_guests din rezervare
+    max_guests = reservation.max_guests or 1
 
     # Check current guests
     current_guests = session.exec(
         select(ReservationGuest).where(ReservationGuest.reservation_id == reservation_id)
     ).all()
     if len(current_guests) + len(guest_ids) > max_guests:
-        raise HTTPException(status_code=400, detail=f"Max guests for {element.type} is {max_guests}")
+        raise HTTPException(status_code=400, detail=f"Max guests allowed is {max_guests}")
 
     # Add guests
     for guest_id in guest_ids:
+        # Verificare dublură
+        already_invited = session.exec(
+            select(ReservationGuest).where(
+                ReservationGuest.reservation_id == reservation_id,
+                ReservationGuest.user_id == guest_id
+            )
+        ).first()
+        if already_invited:
+            raise HTTPException(status_code=400, detail="Guest already invited")
+
         session.add(ReservationGuest(reservation_id=reservation_id, user_id=guest_id))
+
     session.commit()
     return {"message": "Guests invited successfully"}
+
 
 
 @api.get("/reservations/{reservation_id}/guests")
