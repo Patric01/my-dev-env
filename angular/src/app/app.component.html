@@ -1,11 +1,51 @@
-<!-- Navbar vizibil doar dacă showNavbar e true -->
+<!-- Navbar -->
+ 
+<!-- Navbar -->
 <nav class="navbar" *ngIf="showNavbar">
   <a routerLink="/home">
-  <img src="assets/Endava_Logo.svg" alt="Logo" class="nav-logo" />
-</a>
-  <button class="logout-btn" (click)="logout()">Logout</button>
+    <img src="assets/Endava_Logo.svg" alt="Logo" class="nav-logo" />
+  </a>
 
+  <div class="nav-right">
+    <!-- Notificări -->
+    <div class="notification-wrapper" (click)="toggleNotifications()">
+      <img src="assets/bell.png" alt="Notificări" class="bell-icon" />
+      <span class="notification-count" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
+    </div>
+
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
 </nav>
+
+
+
+<!-- notification list -->
+<div class="notification-popup" *ngIf="showNotifications">
+  <div class="popup-header">
+    <h4>Invitații primite</h4>
+    <button class="close-btn" (click)="showNotifications = false">×</button>
+  </div>
+
+  <ul *ngIf="notifications.length > 0; else noInvites">
+    <li *ngFor="let notif of notifications" class="notif-item">
+      <div class="notif-content">
+        Invitație la <strong>{{ notif.type }}</strong>
+        <span *ngIf="notif.game">({{ notif.game }})</span>
+        de la <em>{{ notif.from_name }}</em>
+      </div>
+
+      <div class="notif-actions">
+        <button (click)="respondToInvite(notif.id, true)" class="btn accept">Accept</button>
+        <button (click)="respondToInvite(notif.id, false)" class="btn decline">Refuză</button>
+      </div>
+    </li>
+  </ul>
+
+  <ng-template #noInvites>
+    <p style="text-align: center; color: #777;">Nicio invitație momentan.</p>
+  </ng-template>
+</div>
+
 
 <!-- Pagini -->
 <router-outlet></router-outlet>

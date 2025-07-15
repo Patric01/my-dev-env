@@ -162,7 +162,8 @@ export class PingPongComponent implements OnInit {
     const payload = {
       type: 'ping-pong',
       start_time: `${today}T${this.pad(h)}:${this.pad(m)}:00`,
-      end_time: `${today}T${this.pad(end.getHours())}:${this.pad(end.getMinutes())}:00`
+      end_time: `${today}T${this.pad(end.getHours())}:${this.pad(end.getMinutes())}:00`,
+      max_guests: 3
     };
 
     // <<<<<<< Updated upstream

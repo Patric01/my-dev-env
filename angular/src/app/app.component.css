@@ -11,6 +11,12 @@
   height: 40px;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* spațiu între notificări și logout */
+}
+
 .logout-btn {
   background-color: #FF5640;
   border: none;
@@ -24,4 +30,91 @@
 
 .logout-btn:hover {
   background-color: #e24e3a;
+}
+
+
+.notification-wrapper {
+  position: relative;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.bell-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.notification-count {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  width: 260px;
+}
+
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+}
+
+.notif-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notif-content {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn.accept {
+  background-color: #4CAF50;
+  color: white;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn.decline {
+  background-color: #e53935;
+  color: white;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
 }

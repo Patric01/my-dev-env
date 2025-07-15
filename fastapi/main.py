@@ -178,3 +178,54 @@ def search_users(
     )
     users = session.exec(statement).all()
     return [{"id": u.id, "name": u.name, "email": u.email} for u in users]
+
+@api.get("/notifications")
+def get_user_notifications(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    statement = (
+        select(Reservation, Element, User)
+        .join(ReservationGuest, Reservation.id == ReservationGuest.reservation_id)
+        .join(Element, Element.id == Reservation.element_id)
+        .join(User, Reservation.user_id == User.id)
+        .where(ReservationGuest.user_id == current_user.id)
+    )
+    results = session.exec(statement).all()
+
+    notifications = []
+    for reservation, element, inviter in results:
+        notifications.append({
+            "id": reservation.id,
+            "type": element.type,
+            "game": reservation.game,
+            "from_name": inviter.name,
+            "start_time": reservation.start_time.isoformat()
+        })
+    return notifications
+
+
+@api.post("/reservations/{reservation_id}/respond")
+def respond_to_invitation(
+    reservation_id: int,
+    payload: dict = Body(...),
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    status = payload.get("status")  # 'accepted' or 'declined'
+
+    guest = session.exec(
+        select(ReservationGuest)
+        .where(
+            ReservationGuest.reservation_id == reservation_id,
+            ReservationGuest.user_id == current_user.id
+        )
+    ).first()
+
+    if not guest:
+        raise HTTPException(status_code=404, detail="Invitația nu există.")
+
+    guest.status = status
+    session.add(guest)
+    session.commit()
+    return {"message": f"Invitația a fost {status}."}

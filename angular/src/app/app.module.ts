@@ -19,6 +19,7 @@ import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common
 import { JwtInterceptor } from './auth/jwt.interceptor';
 import { MassageComponent } from './massage/massage.component';
 import { TournamentMainpgComponent } from './tournament-mainpg/tournament-mainpg.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { TournamentMainpgComponent } from './tournament-mainpg/tournament-mainpg
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    HttpClientModule      // 🔹 pentru http.post()
+    HttpClientModule   ,
+    CommonModule   // 🔹 pentru http.post()
   ],
   providers: [
     provideClientHydration(withEventReplay()),
